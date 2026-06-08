@@ -1,13 +1,9 @@
-pipeline {
+﻿pipeline {
     agent any
 
     environment {
         IMAGE_NAME = 'akankshmahesh/parksmart-app'
         SONAR_SCANNER_HOME = tool 'SonarScanner'
-    }
-
-    tools {
-        nodejs 'NodeJS20'
     }
 
     stages {
@@ -42,7 +38,7 @@ pipeline {
         stage('Backend Dependencies') {
             steps {
                 dir('backend') {
-                    bat 'pip install -r requirements.txt'
+                    bat 'py -m pip install -r requirements.txt'
                 }
             }
         }
@@ -51,8 +47,8 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     bat """
-                        ${SONAR_SCANNER_HOME}\\bin\\sonar-scanner.bat ^
-                        -Dsonar.projectKey=thunderemperor99_thunderemperor99 ^^
+                        "%SONAR_SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
+                        -Dsonar.projectKey=THUNDEREMPEROR99_ParkSmart ^
                         -Dsonar.organization=thunderemperor99 ^
                         -Dsonar.sources=. ^
                         -Dsonar.host.url=https://sonarcloud.io ^
@@ -63,11 +59,10 @@ pipeline {
         }
 
         stage('Trivy Security Scan') {
-   	    steps {
-        	bat 'trivy fs . > trivy-report.txt 2>&1'
-        	archiveArtifacts artifacts: 'trivy-report.txt', allowEmptyArchive: true
-    	    }
-	}
+            steps {
+                bat 'trivy fs . > trivy-report.txt'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -76,12 +71,12 @@ pipeline {
         }
 
         stage('Docker Login') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-            bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                }
+            }
         }
-    }
-}
 
         stage('Push Docker Image') {
             steps {
