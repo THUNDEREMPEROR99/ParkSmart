@@ -38,7 +38,7 @@ pipeline {
         stage('Backend Dependencies') {
             steps {
                 dir('backend') {
-                    bat 'py -m pip install -r requirements.txt'
+                    bat 'C:\\Users\\akach\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m pip install -r requirements.txt'
                 }
             }
         }
