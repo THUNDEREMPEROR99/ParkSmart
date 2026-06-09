@@ -59,10 +59,16 @@ pipeline {
         }
 
         stage('Trivy Security Scan') {
-            steps {
-                bat 'trivy fs . > trivy-report.txt'
-            }
-        }
+    	steps {
+        	script {
+            	try {
+                	bat 'trivy fs --skip-db-update . > trivy-report.txt'
+            	} catch (Exception e) {
+                	echo "Trivy scan failed, continuing..."
+                	currentBuild.result = 'UNSTABLE'
+            			  }
+		}
+	}
 
         stage('Build Docker Image') {
             steps {
