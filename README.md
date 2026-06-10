@@ -36,3 +36,5 @@ npm start
 10. Push Docker Image
 11. Deploy Frontend to Vercel
 12. Deploy Backend to Render
+
+
